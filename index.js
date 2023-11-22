@@ -7,7 +7,7 @@ const io = new Server(server)
 const { port } = require('./Config/index')
 const PORT = port || 8000
 const UserRoutes = require('./Router/UserRoutes');
-const errorHandler = require('./errorHandler');
+const errorHandler = require('./Middlewares/errorHandler');
 const connectDB = require('./Config/dbConnection')
 connectDB()
 

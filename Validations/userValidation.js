@@ -1,9 +1,14 @@
 const { body } = require('express-validator')
 
 const loginValidator = [
-    body('email', 'email_cannot_be_empty').notEmpty(),
-    body('email', 'email_format_incorrect').isEmail(),
-    body('password', 'password_min_6').isLength({min: 6}),
+    body('email')
+        .notEmpty().withMessage('email_cannot_be_empty')
+        .isLength({min:8, max: 40}).withMessage('email_length_incorrect')
+        .isEmail().withMessage('email_format_incorrect'),
+        
+    body('password')
+        .notEmpty().withMessage('password_cannot_be_empty')
+        .isLength({min:8, max: 16}).withMessage('password_length_incorrect'),
 ]
 
 const registerValidator = [
