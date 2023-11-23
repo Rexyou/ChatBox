@@ -122,12 +122,12 @@ const updateProfile = asyncHandler(async (req, res)=>{
     
     const params = req.body;
 
-    const profile = user_details.profile
+    const profile = user_details.profile[0]
     Object.assign(profile, params)
-    const profile_save = await profile.save()
-    if(profile_save){
+    const result = await profile.save()
+    if(!result){
         res.status(500)
-        throw new Error("profile_save_failure")
+        throw new Error("profile_update_failure")
     }
 
     return res.json({ status: true, data: { profile }, message: 'success', code: 200 })
