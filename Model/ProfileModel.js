@@ -26,7 +26,8 @@ const ProfileModel = mongoose.Schema({
         maxLength: 3
     },
     date_of_birth: {
-        type: Date
+        type: String,
+        match: [/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/, 'Please fill a valid email address'],
     },
     gender: {
         type: Number,

@@ -30,7 +30,7 @@ const login = asyncHandler(async (req, res)=> {
     const token = jwt.sign(
         { user: { email: user.email, username: user.username, id: user.id } },
         process.env.ACCESS_SECRET_TOKEN,    
-        // { expiresIn: '1h' }
+        { expiresIn: '1m' }
     );
     if(!token){
         res.status(500)
