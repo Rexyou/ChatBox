@@ -30,6 +30,7 @@ const login = asyncHandler(async (req, res)=> {
     const token = jwt.sign(
         { user: { email: user.email, username: user.username, id: user.id } },
         process.env.ACCESS_SECRET_TOKEN,    
+        // { expiresIn: '1h' }
     );
     if(!token){
         res.status(500)
@@ -59,12 +60,19 @@ const register = asyncHandler(async (req, res)=> {
             res.status(500)
             throw new Error("creation_user_failure")
         }
-
-        const create_profile = await Profile.create({ user_id: creation_user._id, country })
+        
+        const create_profile = await Profile.create({ user: creation_user._id, country })
         if(!create_profile){
             res.status(500)
             throw new Error("creation_profile_failure")
         }
+        
+        // First method
+        // creation_user.profile = create_profile
+
+        // Second method
+        // creation_user.profile = create_profile._id
+        // creation_user.save()
         
         return res.json({ status: true, data: "", message: 'success', code: 200 })
         
@@ -87,7 +95,7 @@ const profile = asyncHandler(async (req, res)=> {
 
     const { email, username, id } = req.user
 
-    const user_details = await User.findOne({ _id: id });
+    const user_details = await User.findOne({ _id: id, username, email }).populate('profile');
     if(!user_details){
         res.status(404)
         throw new Error("user_not_found");
@@ -97,8 +105,37 @@ const profile = asyncHandler(async (req, res)=> {
 
 })
 
+const updateProfile = asyncHandler(async (req, res)=>{
+
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        return res.status(422).json({ status: false, data: "", message: errors.array(), code: 422 })
+    }
+
+    const { email, username, id } = req.user
+
+    const user_details = await User.findOne({ _id: id, username, email }).populate('profile');
+    if(!user_details){
+        res.status(404)
+        throw new Error("user_not_found");
+    }
+    
+    const params = req.body;
+
+    const profile = user_details.profile
+    Object.assign(profile, params)
+    const profile_save = await profile.save()
+    if(profile_save){
+        res.status(500)
+        throw new Error("profile_save_failure")
+    }
+
+    return res.json({ status: true, data: { profile }, message: 'success', code: 200 })
+})
+
 module.exports = {
     login,
     register,
-    profile
+    profile,
+    updateProfile
 }

@@ -2,12 +2,6 @@ const mongoose = require('mongoose')
 const { userStatus } = require('../Config/setting')
 
 const ProfileModel = mongoose.Schema({
-    user_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "Users",
-        unique: true
-    },
     image: {
         type: String
     },
@@ -18,12 +12,12 @@ const ProfileModel = mongoose.Schema({
     },
     city: {
         type: String,
-        minLength: 10,
+        minLength: 5,
         maxLength: 200
     },
     state: {
         type: String,
-        minLength: 10,
+        minLength: 5,
         maxLength: 100
     },
     country: {
@@ -35,7 +29,9 @@ const ProfileModel = mongoose.Schema({
         type: Date
     },
     gender: {
-        type: Boolean
+        type: Number,
+        min: 1,
+        max: 3
     },
     remember_me_setting: {
         type: Boolean
@@ -44,8 +40,12 @@ const ProfileModel = mongoose.Schema({
         type: Number,
         default: userStatus.INACTIVE
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User" // Refers to the User model
+    },
 }, {
     timestamps: true
 })
 
-module.exports = mongoose.model("User_Profile", ProfileModel)
+module.exports = mongoose.model("Profile", ProfileModel)

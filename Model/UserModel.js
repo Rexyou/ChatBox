@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+// const { Schema } = mongoose;
 const { userStatus, userType } = require('../Config/setting')
 
 const UserModel = mongoose.Schema({
@@ -65,13 +65,22 @@ const UserModel = mongoose.Schema({
         default: userStatus.INACTIVE,
         index: true
     },
-    profile: {
-        type: Schema.Types.ObjectId,
-        ref: 'user_profiles',
-    },
+    // profile: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Profile" // Refers to the Profile model
+    // },
 }, {
     timestamps: true,
-    optimisticConcurrency: true
+    optimisticConcurrency: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
 
-module.exports = mongoose.model("Users", UserModel)
+UserModel.virtual('profile', {
+    ref: 'Profile',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: false
+});
+
+module.exports = mongoose.model("User", UserModel)
