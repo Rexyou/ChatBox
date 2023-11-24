@@ -68,11 +68,11 @@ const register = asyncHandler(async (req, res)=> {
         }
         
         // First method
-        // creation_user.profile = create_profile
+        creation_user.profile = create_profile
 
         // Second method
         // creation_user.profile = create_profile._id
-        // creation_user.save()
+        creation_user.save()
         
         return res.json({ status: true, data: "", message: 'success', code: 200 })
         
@@ -122,7 +122,7 @@ const updateProfile = asyncHandler(async (req, res)=>{
     
     const params = req.body;
 
-    const profile = user_details.profile[0]
+    const profile = user_details.profile
     Object.assign(profile, params)
     const result = await profile.save()
     if(!result){

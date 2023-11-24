@@ -81,7 +81,7 @@ UserModel.virtual('profile', {
     ref: 'Profile',
     localField: '_id',
     foreignField: 'user',
-    justOne: false
+    justOne: true
 });
 
 module.exports = mongoose.model("User", UserModel)
