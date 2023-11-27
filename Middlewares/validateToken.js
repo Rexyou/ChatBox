@@ -10,14 +10,13 @@ const validateToken = asyncHandler(async(req, res, next)=> {
         token = authHeader.split(" ")[1];
         jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, async (err, decoded)=> {
             if(err){
-                return res.status(401).json({ status: false, data: '', message: "user_not_authorized", code: 422 })
+                return res.status(401).json({ status: false, data: '', message: "user_not_authorized", code: 401 })
             }
 
-            // const user_profile = await User.findById({ _id: decoded.user.id });
-            // if(user_profile.status != userStatus.ACTIVE){
-            //     return res.status(401).json({ status: false, data: '', message: "user_not_authorized", code: 422 })
-            //     // throw new Error("user_not_authorized2")
-            // }
+            const user_profile = await User.findById({ _id: decoded.user.id });
+            if(user_profile.status != userStatus.ACTIVE){
+                return res.status(401).json({ status: false, data: '', message: "user_not_authorized", code: 401 })
+            }
 
             // Assign user to current req
             req.user = decoded.user

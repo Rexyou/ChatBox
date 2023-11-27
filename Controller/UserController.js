@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User = require('../Model/UserModel')
 const Profile = require('../Model/ProfileModel')
+const { sendEmail, generateToken } = require('./CommonController')
 
 const login = asyncHandler(async (req, res)=> {
 
@@ -30,7 +31,7 @@ const login = asyncHandler(async (req, res)=> {
     const token = jwt.sign(
         { user: { email: user.email, username: user.username, id: user.id } },
         process.env.ACCESS_SECRET_TOKEN,    
-        { expiresIn: '1m' }
+        { expiresIn: '1d' }
     );
     if(!token){
         res.status(500)
@@ -73,6 +74,24 @@ const register = asyncHandler(async (req, res)=> {
         // Second method
         // creation_user.profile = create_profile._id
         creation_user.save()
+
+        // Create token
+        req.body = {}
+        req.body = { type: "register_token", user_id: creation_user._id }
+        const token_result = await generateToken(req, res);
+        if(!token_result.status){
+            res.status(token_result.code)
+            throw new Error(token_result.message)
+        }
+
+        req.body = {};
+        req.body = { to_address: email, subject: "Welcome to ChatBox", text: `Click this link to activate your account ${token_result.data}` }
+
+        const result = await sendEmail(req, res)
+        if(!result.status){
+            res.status(result.code)
+            throw new Error(result.message)
+        }
         
         return res.json({ status: true, data: "", message: 'success', code: 200 })
         
@@ -85,7 +104,8 @@ const register = asyncHandler(async (req, res)=> {
         }
 
         res.status(code)
-        throw new Error(error.message)
+        console.log(error)
+        throw new Error(error)
 
     }
 

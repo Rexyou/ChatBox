@@ -7,12 +7,14 @@ const io = new Server(server)
 const { port } = require('./Config/index')
 const PORT = port || 8000
 const UserRoutes = require('./Router/UserRoutes');
+const CommonRoutes = require('./Router/CommonRoutes')
 const errorHandler = require('./Middlewares/errorHandler');
 const connectDB = require('./Config/dbConnection')
 connectDB()
 
 app.use(express.json())
 app.use('/api/v1/user', UserRoutes)
+app.use('/api/v1/common', CommonRoutes)
 
 app.get("/", (req, res)=> {
     return res.sendFile(__dirname+'/index.html')
