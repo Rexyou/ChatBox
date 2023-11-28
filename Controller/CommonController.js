@@ -7,6 +7,22 @@ const UserToken = require('../Model/TokenModel')
 const User = require('../Model/UserModel')
 const { tableStatus } = require('../Config/setting')
 
+const standardResponse = (req, res) => {
+
+    let status = false
+    if(req.code === 200){
+        status = true
+    }
+
+    const request_body = { status, data: req.data, message: req.message, code: req.code }
+
+    return returnResponse(request_body, res)
+}
+
+const returnResponse = (req, res) => {
+    return res.status(req.code).json(req);
+}
+
 const sendEmail = asyncHandler(async (req, res) => {
 
     const errors = validationResult(req)
@@ -125,7 +141,7 @@ const verifyRegisterToken = asyncHandler(async (req, res)=> {
 
     const errors = await validationResult(req)
     if(!errors.isEmpty()){
-        return res.status(422).json({ status: false, data: '', message: errors.array(), code: 422 })
+        return standardResponse({ data: '', message: errors.array(), code: 422 }, res)
     }
 
     const { email, token } = req.body
@@ -133,11 +149,11 @@ const verifyRegisterToken = asyncHandler(async (req, res)=> {
     const token_filter = { type: "register_token", token, status: tableStatus.ACTIVE }
     const user_token = await UserToken.findOne(token_filter).populate('user');
     if(!user_token){
-        return res.status(404).json({ status: false, data: '', message: 'token_not_found', code: 404 })
+        return standardResponse({ data: '', message: 'token_not_found', code: 404 }, res)
     }
 
     if(user_token.user.email !== email){
-        return res.status(500).json({ status: false, data: '', message: "token_invalid", code: 500 })
+        return standardResponse({ data: '', message: 'token_invalid', code: 500 }, res)
     }
 
     const token_updation = await user_token.updateOne((token_filter, { status: tableStatus.INACTIVE }))
@@ -153,7 +169,7 @@ const verifyRegisterToken = asyncHandler(async (req, res)=> {
         throw new Error("user_update_failure")
     }
 
-    return res.json({ status: true, data: '', message: "success", code: 200 })
+    return standardResponse({ data: '', message: 'success', code: 200 }, res)
 
 })
 
@@ -161,5 +177,6 @@ module.exports = {
     sendEmail,
     sendEmailFunction,
     generateToken,
-    verifyRegisterToken
+    verifyRegisterToken,
+    standardResponse
 }
