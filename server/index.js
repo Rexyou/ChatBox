@@ -12,6 +12,20 @@ const errorHandler = require('./Middlewares/errorHandler');
 const connectDB = require('./Config/dbConnection')
 connectDB()
 
+// Cors Unblocking
+const cors = require('cors');
+
+const allowedOrigins = [
+  "http://localhost:5173", //your frontend URL
+  // any other origins you want to allow
+]
+
+const corsOptions = {
+  origin: allowedOrigins
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json())
 app.use('/api/v1/user', UserRoutes)
 app.use('/api/v1/common', CommonRoutes)

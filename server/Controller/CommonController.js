@@ -5,7 +5,7 @@ const { validationResult } = require('express-validator')
 // const { SendEmailValidator } = require('../Validations/commonValidation')
 const UserToken = require('../Model/TokenModel')
 const User = require('../Model/UserModel')
-const { tableStatus } = require('../Config/setting')
+const { tableStatus, responseCode } = require('../Config/setting')
 
 const standardResponse = (req, res) => {
 
@@ -141,7 +141,7 @@ const verifyRegisterToken = asyncHandler(async (req, res)=> {
 
     const errors = await validationResult(req)
     if(!errors.isEmpty()){
-        return standardResponse({ data: '', message: errors.array(), code: 422 }, res)
+        return standardResponse({ data: '', message: errors.array(), code: responseCode.VALIDATION_ERROR }, res)
     }
 
     const { email, token } = req.body
@@ -149,11 +149,11 @@ const verifyRegisterToken = asyncHandler(async (req, res)=> {
     const token_filter = { type: "register_token", token, status: tableStatus.ACTIVE }
     const user_token = await UserToken.findOne(token_filter).populate('user');
     if(!user_token){
-        return standardResponse({ data: '', message: 'token_not_found', code: 404 }, res)
+        return standardResponse({ data: '', message: 'token_not_found', code: responseCode.NOT_FOUND }, res)
     }
 
     if(user_token.user.email !== email){
-        return standardResponse({ data: '', message: 'token_invalid', code: 500 }, res)
+        return standardResponse({ data: '', message: 'token_invalid', code: responseCode.SERVER_ERROR }, res)
     }
 
     const token_updation = await user_token.updateOne((token_filter, { status: tableStatus.INACTIVE }))
@@ -169,7 +169,7 @@ const verifyRegisterToken = asyncHandler(async (req, res)=> {
         throw new Error("user_update_failure")
     }
 
-    return standardResponse({ data: '', message: 'success', code: 200 }, res)
+    return standardResponse({ data: '', message: 'success', code: responseCode.SUCCESS }, res)
 
 })
 
