@@ -18,9 +18,10 @@ export const useAuthStore = defineStore('auth', {
       try {
         
         await axiosInstance.post('/user/login', { email: data.email, password: data.password })
-        .then((response)=> {
+        .then(async (response)=> {
           this.token = response.data.data
-          this.router.push({ name: 'profile' }); 
+          await this.userProfile()
+          await this.router.push({ name: 'profile' }); 
         })
         .catch((error)=> {
           console.log(error)
@@ -31,5 +32,30 @@ export const useAuthStore = defineStore('auth', {
         console.log(error)
       }
     },
+    async userProfile(){
+
+      console.log("working")
+
+      try {
+        
+        await axiosInstance.get('/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${this.token}`
+          }
+        })
+        .then((response)=> {
+          console.log(response.data)
+          this.authUserInfo = response.data.data
+        })
+        .catch((error)=>{
+          console.log(error)
+        })
+
+      } catch (error) {
+        console.log("try catch")
+        console.log(error)
+      }
+
+    }
   }
 })

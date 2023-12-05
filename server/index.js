@@ -8,6 +8,7 @@ const { port } = require('./Config/index')
 const PORT = port || 8000
 const UserRoutes = require('./Router/UserRoutes');
 const CommonRoutes = require('./Router/CommonRoutes')
+const ContactRoutes = require('./Router/ContactRoutes')
 const errorHandler = require('./Middlewares/errorHandler');
 const connectDB = require('./Config/dbConnection')
 connectDB()
@@ -29,6 +30,7 @@ app.use(cors(corsOptions));
 app.use(express.json())
 app.use('/api/v1/user', UserRoutes)
 app.use('/api/v1/common', CommonRoutes)
+app.use('/api/v1/contact', ContactRoutes)
 
 app.get("/", (req, res)=> {
     return res.sendFile(__dirname+'/index.html')

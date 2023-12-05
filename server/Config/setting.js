@@ -13,6 +13,7 @@ const userStatus = {
 const tableStatus = {
     INACTIVE: 0,
     ACTIVE: 1,
+    TERMINATED: 2,
 }
 
 const responseCode = {
@@ -23,9 +24,17 @@ const responseCode = {
     SERVER_ERROR: 500
 }
 
+const contactStatus = {
+    INITIAL: 0,
+    FRIEND: 1,
+    UNFRIEND: 2,
+    BLOCK: 3,
+}
+
 module.exports = { 
     userType, 
     userStatus,
     tableStatus,
-    responseCode
+    responseCode,
+    contactStatus
 };
