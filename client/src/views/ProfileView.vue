@@ -1,7 +1,9 @@
 <template>
     <div>
         <h1>Profile page</h1>
-        <img :src="profile.profile.image" alt="profile_image" style="height: 400px;width: auto;">
+        <div v-if="profile.profile.image != null">
+            <img :src="profile.profile.image" alt="profile_image" style="height: 400px;width: auto;">
+        </div>
         <div>
             <label for="username">Username</label>
             <input type="text" v-model="profile.username" readonly>
@@ -23,16 +25,9 @@
 
 <script setup>
     import { useAuthStore } from '../stores/auth'
-    import { getActivePinia } from 'pinia'
 
     const authStore = useAuthStore()
     let profile = authStore.authUserInfo;
-
-    console.log(profile)
-
-    // if(!profile || profile == null){
-    //     getActivePinia()._s.forEach(store => store.$reset());
-    // }
 
 </script>
 

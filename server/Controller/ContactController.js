@@ -2,7 +2,7 @@ const Contact = require('../Model/ContactModel');
 const ContactStatusLog = require('../Model/ContactStatusLog');
 const User = require('../Model/UserModel');
 const asyncHandler = require('express-async-handler')
-const { tableStatus, responseCode, contactStatus } = require('../Config/setting')
+const { tableStatus, responseCode, contactStatus, userStatus } = require('../Config/setting')
 
 const sendRequest = asyncHandler(async (req, res)=> {
 
@@ -20,7 +20,7 @@ const sendRequest = asyncHandler(async (req, res)=> {
         throw new Error("receiver_not_found")
     }
 
-    const connection_exists = await Contact.find({ 
+    const connection_exists = await Contact.findOne({ 
                                 $and: [{ status: tableStatus.ACTIVE, 
                                             $or: [
                                                     {
@@ -40,31 +40,72 @@ const sendRequest = asyncHandler(async (req, res)=> {
         
                                 })
     if(connection_exists.length !== 0){
+
+        const current_status = connection_exists.connection_status
+
+        console.log(current_status)
+
+        if(current_status == contactStatus.UNFRIEND){
+            
+            const update_records = await connection_exists.updateOne({ connection_status: contactStatus.INITIAL })
+            if(!update_records){
+                res.status(responseCode.SERVER_ERROR)
+                throw new Error("update_failure")
+            }
+
+            let sender_id = connection_exists.sender_id
+            let receiver_id = connection_exists.receiver_id
+            if(current_user.id != sender_id){
+                sender_id = connection_exists.receiver_id
+                receiver_id = connection_exists.sender_id
+            }
+
+            const create_log_result = await createContactStatusLog({ 
+                contact_id: connection_exists._id,
+                sender_id,
+                receiver_id,
+                type: "send_request",
+                current_status,
+                incoming_status: contactStatus.INITIAL,
+            });
+            if(!create_log_result.status){
+                res.status(responseCode.SERVER_ERROR)
+                throw new Error("contact_log_record_failure")
+            }
+
+            return res.json({ status: true, data: '', message: "success", code: responseCode.SUCCESS })
+
+        }
+
         res.status(responseCode.SERVER_ERROR)
         throw new Error("contact_created")
     }
+    // Create new contact
+    else {
 
-    const create_contact = await Contact.create({ sender_id: current_user.id, receiver_id });
-    if(!create_contact){
-        res.status(responseCode.SERVER_ERROR)
-        throw new Error("Contact_creation_failure")
-    }
+        const create_contact = await Contact.create({ sender_id: current_user.id, receiver_id });
+        if(!create_contact){
+            res.status(responseCode.SERVER_ERROR)
+            throw new Error("Contact_creation_failure")
+        }
+    
+        // Create Log
+        const create_log_result = await createContactStatusLog({ 
+                                    contact_id: create_contact._id,
+                                    sender_id: create_contact.sender_id,
+                                    receiver_id: create_contact.receiver_id,
+                                    type: "send_request",
+                                    current_status: contactStatus.INITIAL,
+                                    incoming_status: contactStatus.INITIAL,
+                                });
+        if(!create_log_result.status){
+            res.status(responseCode.SERVER_ERROR)
+            throw new Error("contact_log_record_failure")
+        }
 
-    // Create Log
-    const create_log_result = await createContactStatusLog({ 
-                                contact_id: create_contact._id,
-                                sender_id: create_contact.sender_id,
-                                receiver_id: create_contact.receiver_id,
-                                type: "send_request",
-                                current_status: contactStatus.INITIAL,
-                                incoming_status: contactStatus.INITIAL,
-                            });
-    if(!create_log_result.status){
-        res.status(responseCode.SERVER_ERROR)
-        throw new Error("contact_log_record_failure")
     }
                                 
-    return res.status(responseCode.SUCCESS).json({ status: true, data: '', message: "success", code: responseCode.SUCCESS })
+    return res.json({ status: true, data: '', message: "success", code: responseCode.SUCCESS })
 
 })
 
@@ -88,7 +129,12 @@ const getContactList = asyncHandler(async (req, res)=> {
         default_status = req.params.status
     }
 
-    const contact_list = await Contact.find({ connection_status: default_status, $or: [ { sender_id: current_user.id }, { receiver_id: current_user.id } ] })
+    let condition = { $or: [ { sender_id: current_user.id }, { receiver_id: current_user.id } ] }
+    if(default_status == contactStatus.INITIAL){
+        condition = { receiver_id: current_user.id }
+    }
+
+    const contact_list = await Contact.find({ connection_status: default_status, ...condition })
                                     .populate('sender_id').populate('receiver_id');
     if(!contact_list){
         contact_list = {}
@@ -164,8 +210,40 @@ const updateContactStatus = asyncHandler(async (req, res)=> {
 
 })
 
+const searchContact = asyncHandler(async (req, res)=> {
+
+    const { target_value } = req.body
+    const current_user = req.user
+
+    const contacts = await Contact.find({ $or: [ { sender_id: current_user.id }, { receiver_id: current_user.id } ], connect_status: { $ne: contactStatus.UNFRIEND } })
+    const existUserId = contacts.map(contact => {
+        return contact.sender_id == current_user.id ? contact.receiver_id : contact.sender_id;
+    })
+
+    const response = await User.find({ 
+                            $or: [
+                                { username: { $regex: `.*${target_value}.*` } }, 
+                                { first_name: { $regex: `.*${target_value}.*` } }, 
+                                { last_name: { $regex: `.*${target_value}.*` } }, 
+                                { email: { $regex: `.*${target_value}.*` } }, 
+                            ],
+                            status: userStatus.ACTIVE,
+                            $and: [
+                                { _id: { $ne: current_user.id } },
+                                { _id: { $nin: existUserId } }
+                            ]
+                        })
+    if(!response){
+        response = {}
+    }
+
+    return res.json({ status: true, data: response, message: 'success', code: responseCode.SUCCESS })
+
+})
+
 module.exports = {
     sendRequest,
     getContactList,
-    updateContactStatus
+    updateContactStatus,
+    searchContact
 }

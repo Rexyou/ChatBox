@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/auth'
 import LoginView from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ChatListView from '../views/ChatListView.vue'
+import ContactView from '../views/ContactView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/chat_list',
       name: 'chat_list',
       component: ChatListView
+    },
+    {
+      path: '/contact',
+      name: 'contact_list',
+      component: ContactView
     },
   ]
 })

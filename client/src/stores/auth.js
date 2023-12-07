@@ -1,6 +1,6 @@
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axiosInstance from '../config/index'
+import { useContactStore } from './contact'
 
 export const useAuthStore = defineStore('auth', {
   state: ()=> ({
@@ -21,6 +21,11 @@ export const useAuthStore = defineStore('auth', {
         .then(async (response)=> {
           this.token = response.data.data
           await this.userProfile()
+
+          const contactStore = useContactStore();
+          await contactStore.getContactList(this.token)
+          await contactStore.getContactList(this.token, 0)
+
           await this.router.push({ name: 'profile' }); 
         })
         .catch((error)=> {
@@ -33,8 +38,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async userProfile(){
-
-      console.log("working")
 
       try {
         
