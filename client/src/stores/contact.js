@@ -6,6 +6,7 @@ export const useContactStore = defineStore('contact', {
         contactList: {},
         requestList: {},
         resultList: {},
+        contact_room_verify: false
     }),
     persist: {
         storage: sessionStorage,
@@ -100,7 +101,30 @@ export const useContactStore = defineStore('contact', {
                 console.log(error)
             }
 
-        }
+        },
+        async verifyContact(token, contact_id){
+            try {
+                
+                await axiosInstance.post('/contact/verify_contact', { contact_id }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then((response)=> {
+                    if(response.status){
+                        this.contact_room_verify = true
+                    }
+                })
+                .catch((error)=> {
+                    console.log(error)
+                    this.contact_room_verify = false
+                })
+
+            } catch (error) {
+                console.log(error)
+                this.contact_room_verify = false
+            }
+        },
     }
 
 })

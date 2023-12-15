@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { tableStatus } =require('../Config/setting')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
 const messageModel = mongoose.Schema({
     send_from_user: {
@@ -14,18 +15,20 @@ const messageModel = mongoose.Schema({
         type: String,
         required: true
     },
-    room_id: {
-        type: String,
-        required: true
+    contact_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Contact"
     },
     status: {
         required: [ true, "status_require"],
         type: Number,
-        status: tableStatus.ACTIVE
+        default: tableStatus.ACTIVE
     }
 },{
     timestamps: true,
     optimisticConcurrency: true,
 })
 
-module.exports = mongoose.model('User_Relation', messageModel)
+messageModel.plugin(mongoosePaginate)
+
+module.exports = mongoose.model('Chat_Record', messageModel)

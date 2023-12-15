@@ -241,9 +241,25 @@ const searchContact = asyncHandler(async (req, res)=> {
 
 })
 
+const verifyContact = asyncHandler(async (req, res)=> {
+
+    const { contact_id } = req.body
+    const current_user = req.user
+
+    const contact_exist = await Contact.exists({ _id: contact_id, connection_status: contactStatus.FRIEND, $or: [ { sender_id: current_user.id }, { receiver_id: current_user.id } ] });
+    if(!contact_exist){
+        res.status(responseCode.NOT_FOUND)
+        throw new Error("contact_not_found")
+    }
+
+    return res.json({ status: true, data: '', message: 'success', code: responseCode.SUCCESS })
+
+})
+
 module.exports = {
     sendRequest,
     getContactList,
     updateContactStatus,
-    searchContact
+    searchContact,
+    verifyContact
 }

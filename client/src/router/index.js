@@ -4,6 +4,9 @@ import LoginView from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ChatListView from '../views/ChatListView.vue'
 import ContactView from '../views/ContactView.vue'
+import ChatContentView from '../views/ChatContentView.vue'
+import { useContactStore } from '../stores/contact'
+import { computed } from 'vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,7 +22,7 @@ const router = createRouter({
       component: ProfileView
     },
     {
-      path: '/chat_list',
+      path: '/',
       name: 'chat_list',
       component: ChatListView
     },
@@ -27,6 +30,11 @@ const router = createRouter({
       path: '/contact',
       name: 'contact_list',
       component: ContactView
+    },
+    {
+      path: '/chat_room/:contact_id',
+      name: 'chat_content',
+      component: ChatContentView
     },
   ]
 })
@@ -36,6 +44,7 @@ router.beforeEach(async (to, from) => {
   const publicPages = ['login', 'register'];
   const authRequired = !publicPages.includes(to.name);
   const authStore = useAuthStore()
+  const contactStore = useContactStore()
 
   if (authRequired && (!authStore.token || authStore.token == null)) {
     return { name: 'login' }
@@ -49,6 +58,18 @@ router.beforeEach(async (to, from) => {
 
     return path
 
+  }
+  else if(authStore.token && to.name == "chat_content"){
+
+    const token = authStore.token
+    const contact_id = to.params.contact_id
+
+    await contactStore.verifyContact(token, contact_id)
+    const contact_room_verify = computed(()=> contactStore.contact_room_verify)
+    if(!contact_room_verify.value){
+      return { name: 'chat_list' }
+    }
+    
   }
 
 });
