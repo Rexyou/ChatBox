@@ -32,9 +32,20 @@
     const chatStore = useChatStore()
     chatStore.getChatHistory(token, contact_id, 1);
     let chat_list = computed(() => chatStore.chat_list);
+    const current_page_data = computed(() => chatStore.currentPage)
+    const next_page_data = computed(() => chatStore.nextPage)
     
     onMounted(async() => {
         messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' })
+    })
+
+    window.addEventListener('scroll', async ()=> {
+        const current_position = window.scrollY
+        if(current_position == 0){
+            if(next_page_data.value != null && current_page_data.value < next_page_data.value){
+                chatStore.getChatHistory(token, contact_id, next_page_data.value);
+            }
+        }
     })
 
     const state = reactive({

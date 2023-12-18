@@ -51,12 +51,10 @@ io.on('connection', (socket)=> {
       const { msg, userInfo, contact_id } = data
 
       const insertion = await sendMessage({ message: msg, message_type: 'string', contact_id, current_id: userInfo._id });
-      console.log(insertion.data)
 
       let new_message = insertion.data
 
       io.emit('chat_message', new_message);
-      console.log('message: ' + new_message);
 
     });
 
