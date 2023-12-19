@@ -2,7 +2,6 @@ const Message = require('../Model/MessageModel');
 const Contact = require('../Model/ContactModel')
 const asyncHandler = require('express-async-handler');
 const { responseCode, tableStatus } = require('../Config/setting');
-const mongoose = require('mongoose');
 
 const sendMessage = async (data)=> {
 
@@ -19,7 +18,7 @@ const sendMessage = async (data)=> {
 
 }
 
-const getMessages = asyncHandler(async(req, res)=> {
+const getMessages = asyncHandler(async (req, res)=> {
 
     const { contact_id } = req.params
     let { page, limit } = req.query

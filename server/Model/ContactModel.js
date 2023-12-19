@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { tableStatus, contactStatus } = require('../Config/setting')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
 const ContactModel = mongoose.Schema({
 
@@ -24,7 +25,19 @@ const ContactModel = mongoose.Schema({
     }
 
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
+
+ContactModel.virtual('chat_record', {
+    ref: 'Chat_Record',
+    localField: '_id',
+    foreignField: 'contact_id',
+    justOne: true,
+    options: { sort: { 'createdAt': -1 }, limit: 1 },
+});
+
+ContactModel.plugin(mongoosePaginate)
 
 module.exports = mongoose.model('Contact', ContactModel)

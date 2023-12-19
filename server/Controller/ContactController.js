@@ -3,6 +3,8 @@ const ContactStatusLog = require('../Model/ContactStatusLog');
 const User = require('../Model/UserModel');
 const asyncHandler = require('express-async-handler')
 const { tableStatus, responseCode, contactStatus, userStatus } = require('../Config/setting')
+const mongoose = require('mongoose');
+const { pipeline } = require('nodemailer/lib/xoauth2');
 
 const sendRequest = asyncHandler(async (req, res)=> {
 
@@ -256,10 +258,81 @@ const verifyContact = asyncHandler(async (req, res)=> {
 
 })
 
+const getChatContactList = asyncHandler(async (req, res)=> {
+
+    const current_user = req.user
+    console.log(current_user.id)
+
+    // const contactList = await Contact.paginate(
+    //                                         { 
+    //                                             status: tableStatus.ACTIVE, 
+    //                                             connection_status: contactStatus.FRIEND, 
+    //                                             $or: [ 
+    //                                                 { receiver_id: current_user.id }, 
+    //                                                 { sender_id: current_user.id } 
+    //                                             ] 
+    //                                         },
+    //                                         {
+    //                                             sort: { createdAt: 'desc' }, 
+    //                                             populate: { 
+    //                                                         path: 'chat_record',
+    //                                                         select: 'message message_type createdAt',
+    //                                                     }, 
+    //                                         }
+    //                                     );
+
+    const current_user_id = new mongoose.Types.ObjectId(current_user.id)
+    const contactList = await Contact.aggregate([
+                                                    { 
+                                                        $match: 
+                                                        { 
+                                                            status: tableStatus.ACTIVE,
+                                                            connection_status: contactStatus.FRIEND,
+                                                            $or: [
+                                                                { receiver_id: current_user_id }, { sender_id: current_user_id }
+                                                            ]
+                                                        } 
+                                                    },
+                                                    {
+                                                        $lookup: {
+                                                            from: 'chat_records',
+                                                            localField: '_id',
+                                                            foreignField: 'contact_id',
+                                                            as: 'messages',
+                                                            let: { "contact_id": "$_id" },
+                                                            pipeline: [
+                                                                { $sort: { createdAt: -1 } },
+                                                                { $limit: 1 }    
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        $unwind: {
+                                                            path: '$messages',
+                                                            preserveNullAndEmptyArrays: false
+                                                        }
+                                                    },
+                                                    {
+                                                        $sort: { 'messages.createdAt': -1 }
+                                                    }
+                                                ]);
+    if(!contactList){
+        contactList = {}
+    }
+
+    // contactList.docs = contactList.docs.sort((a, b)=> {
+    //     return new Date(b.chat_record.createdAt) - new Date(a.chat_record.createdAt)
+    // })
+
+    return res.send({ status: true, data: contactList, message: 'success', code: responseCode.SUCCESS })
+
+});
+
 module.exports = {
     sendRequest,
     getContactList,
     updateContactStatus,
     searchContact,
-    verifyContact
+    verifyContact,
+    getChatContactList
 }

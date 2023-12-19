@@ -5,6 +5,7 @@ import ProfileView from '../views/ProfileView.vue'
 import ChatListView from '../views/ChatListView.vue'
 import ContactView from '../views/ContactView.vue'
 import ChatContentView from '../views/ChatContentView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 import { useContactStore } from '../stores/contact'
 import { computed } from 'vue'
 
@@ -36,6 +37,11 @@ const router = createRouter({
       name: 'chat_content',
       component: ChatContentView
     },
+    {
+      path: "/:catchAll(.*)",
+      name: 'not_found',
+      component: NotFoundView
+    }
   ]
 })
 
