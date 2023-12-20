@@ -57,6 +57,8 @@ io.on('connection', (socket)=> {
 
       io.emit('chat_message', new_message);
 
+      io.emit('chat_notification', new_message)
+
     });
 
     socket.on('disconnect', ()=>{

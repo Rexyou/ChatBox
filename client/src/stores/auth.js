@@ -26,6 +26,9 @@ export const useAuthStore = defineStore('auth', {
           await contactStore.getContactList(this.token)
           await contactStore.getContactList(this.token, 0)
 
+          // Set to cross tab token
+          window.localStorage.setItem('token', this.token)
+
           await this.router.push({ name: 'profile' }); 
         })
         .catch((error)=> {
@@ -47,7 +50,6 @@ export const useAuthStore = defineStore('auth', {
           }
         })
         .then((response)=> {
-          console.log(response.data)
           this.authUserInfo = response.data.data
         })
         .catch((error)=>{

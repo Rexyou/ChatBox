@@ -6,7 +6,8 @@ export const useChatStore = defineStore('chat', {
         currentPage: 1,
         chat_list: [],
         totalPage: 0,
-        nextPage: null
+        nextPage: null,
+        chat_contact_list: [],
     }),
     persist: {
         storage: sessionStorage,
@@ -27,10 +28,6 @@ export const useChatStore = defineStore('chat', {
                     if(page == 1 && this.chat_list != []) {
                         this.chat_list = []
                     }
-
-                    // if(this.chat_list != [] && this.currentPage != 1){
-                    //     this.chat_list.unshift(...response.data.data.docs)
-                    // }
                     this.chat_list.unshift(...response.data.data.docs)
 
                     // Recorder
@@ -46,6 +43,21 @@ export const useChatStore = defineStore('chat', {
                 console.log(error)
             }
 
-        }
+        },
+        async getChatList(token){
+            try {
+                
+                await axiosInstance.get('/contact/chat_list', { headers: { 'Authorization': `Bearer ${token}` } })
+                .then((response)=> {
+                    this.chat_contact_list = response.data.data
+                })
+                .catch((error)=> {
+                    console.log(error)
+                })
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
     }
 })

@@ -52,6 +52,14 @@ router.beforeEach(async (to, from) => {
   const authStore = useAuthStore()
   const contactStore = useContactStore()
 
+  // Check current storage
+  const storage_token = window.localStorage.getItem('token')
+  if(storage_token){
+    authStore.token = storage_token
+    await authStore.userProfile()
+    await contactStore.getContactList(storage_token)
+  }
+
   if (authRequired && (!authStore.token || authStore.token == null)) {
     return { name: 'login' }
   }

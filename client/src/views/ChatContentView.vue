@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-    import { computed, onMounted, reactive, ref, nextTick } from 'vue'
+    import { computed, reactive, ref, nextTick, onMounted, watch } from 'vue'
     import { io } from 'socket.io-client'
     import { useRoute, useRouter } from 'vue-router'
     import { useAuthStore } from '../stores/auth'
@@ -48,7 +48,7 @@
     if(newList.length == 0){
         router.push({ name: "chat_list" })
     }
-    
+
     let receiver_name = "Receiver";
     if(newList[0].sender_id._id != userInfo._id){
         receiver_name = newList[0].sender_id.username;
@@ -63,7 +63,7 @@
     }
 
     onMounted(async() => {
-        messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' })
+        setTimeout(()=> { messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' }) }, 150)
     })
 
     window.addEventListener('scroll', async ()=> {
