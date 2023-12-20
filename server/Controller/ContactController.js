@@ -261,61 +261,76 @@ const verifyContact = asyncHandler(async (req, res)=> {
 const getChatContactList = asyncHandler(async (req, res)=> {
 
     const current_user = req.user
-    console.log(current_user.id)
-
-    // const contactList = await Contact.paginate(
-    //                                         { 
-    //                                             status: tableStatus.ACTIVE, 
-    //                                             connection_status: contactStatus.FRIEND, 
-    //                                             $or: [ 
-    //                                                 { receiver_id: current_user.id }, 
-    //                                                 { sender_id: current_user.id } 
-    //                                             ] 
-    //                                         },
-    //                                         {
-    //                                             sort: { createdAt: 'desc' }, 
-    //                                             populate: { 
-    //                                                         path: 'chat_record',
-    //                                                         select: 'message message_type createdAt',
-    //                                                     }, 
-    //                                         }
-    //                                     );
-
     const current_user_id = new mongoose.Types.ObjectId(current_user.id)
+
     const contactList = await Contact.aggregate([
-                                                    { 
-                                                        $match: 
-                                                        { 
-                                                            status: tableStatus.ACTIVE,
-                                                            connection_status: contactStatus.FRIEND,
-                                                            $or: [
-                                                                { receiver_id: current_user_id }, { sender_id: current_user_id }
-                                                            ]
-                                                        } 
-                                                    },
-                                                    {
-                                                        $lookup: {
-                                                            from: 'chat_records',
-                                                            localField: '_id',
-                                                            foreignField: 'contact_id',
-                                                            as: 'messages',
-                                                            let: { "contact_id": "$_id" },
-                                                            pipeline: [
-                                                                { $sort: { createdAt: -1 } },
-                                                                { $limit: 1 }    
-                                                            ]
-                                                        }
-                                                    },
-                                                    {
-                                                        $unwind: {
-                                                            path: '$messages',
-                                                            preserveNullAndEmptyArrays: false
-                                                        }
-                                                    },
-                                                    {
-                                                        $sort: { 'messages.createdAt': -1 }
-                                                    }
-                                                ]);
+                            { 
+                                $match: 
+                                { 
+                                    status: tableStatus.ACTIVE,
+                                    connection_status: contactStatus.FRIEND,
+                                    $or: [
+                                        { receiver_id: current_user_id }, { sender_id: current_user_id }
+                                    ]
+                                } 
+                            },
+                            {
+                                $lookup: {
+                                    from: 'users',
+                                    localField: 'sender_id',
+                                    foreignField: '_id',
+                                    as: 'sender_id',
+                                    pipeline: [
+                                        { $project: { username: 1 } },
+                                    ]
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'users',
+                                    localField: 'receiver_id',
+                                    foreignField: '_id',
+                                    as: 'receiver_id',
+                                    pipeline: [
+                                        { $project: { username: 1 } }
+                                    ]
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: 'chat_records',
+                                    localField: '_id',
+                                    foreignField: 'contact_id',
+                                    as: 'messages',
+                                    // let: { "contact_id": "$_id" },
+                                    pipeline: [
+                                        { $sort: { createdAt: -1 } },
+                                        { $limit: 1 }    
+                                    ]
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: '$messages',
+                                    preserveNullAndEmptyArrays: false
+                                },
+                            },
+                            {
+                                $unwind: {
+                                    path: '$sender_id',
+                                    preserveNullAndEmptyArrays: false
+                                },
+                            },
+                            {
+                                $unwind: {
+                                    path: '$receiver_id',
+                                    preserveNullAndEmptyArrays: false
+                                },
+                            },
+                            {
+                                $sort: { 'messages.createdAt': -1 }
+                            }
+                        ]);
     if(!contactList){
         contactList = {}
     }

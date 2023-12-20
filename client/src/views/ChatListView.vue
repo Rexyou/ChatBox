@@ -4,8 +4,8 @@
         <div class="chat_contact_list">
             <div v-for="(item, index) in chatContactList" :key="index" class="chat_contact">
                 <router-link :to="{ name: 'chat_content', params: { contact_id: item._id } }" target="_blank">
-                    <h2 v-if="item.sender_id != userInfo._id">{{ item.sender_id }}</h2>
-                    <h2 v-else>{{ item.receiver_id }}</h2>
+                    <h2 v-if="item.sender_id._id != userInfo._id">{{ item.sender_id.username }}</h2>
+                    <h2 v-else>{{ item.receiver_id.username }}</h2>
                     <p>{{ item.messages.message }} at {{ item.messages.createdAt }}</p>
                 </router-link>
             </div>
@@ -27,7 +27,6 @@
     chatStore.getChatList(token);
 
     const chatContactList = computed(()=> chatStore.chat_contact_list)
-    console.log(chatContactList.value)
 
     const socket = io('http://localhost:3900')
 
