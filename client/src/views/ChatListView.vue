@@ -3,6 +3,9 @@
         <h1>Chat List</h1>
         <div class="chat_contact_list">
             <div v-for="(item, index) in chatContactList" :key="index" class="chat_contact">
+                <img v-if="item.sender_id._id != userInfo._id && item.sender_id.user_profile.image" :src="item.sender_id.user_profile.image" alt="sender_profile_image" class="user_profile_image">
+                <img v-if="item.receiver_id._id != userInfo._id && item.receiver_id.user_profile.image" :src="item.receiver_id.user_profile.image" alt="receiver_profile_image" class="user_profile_image">
+                <img v-if="!item.sender_id.user_profile.image || !item.receiver_id.user_profile.image" src="https://images.unsplash.com/photo-1603208228995-e1363f894188?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="default">
                 <router-link :to="{ name: 'chat_content', params: { contact_id: item._id } }" target="_blank">
                     <h2 v-if="item.sender_id._id != userInfo._id">{{ item.sender_id.username }}</h2>
                     <h2 v-else>{{ item.receiver_id.username }}</h2>
@@ -54,11 +57,24 @@
         border: 1px solid black;
         border-radius: 8px;
         padding: 5px 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .chat_contact img {
+        height: 150px;
+        width: auto;
+        margin: 10px;
+        border-radius: 8px;
     }
     
     .chat_contact a {
         text-decoration: none !important;
         color: black;
+        height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .chat_contact a:hover {

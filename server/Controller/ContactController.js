@@ -289,7 +289,18 @@ const getChatContactList = asyncHandler(async (req, res)=> {
                                     foreignField: '_id',
                                     as: 'sender_id',
                                     pipeline: [
-                                        { $project: { username: 1 } },
+                                        { 
+                                            $lookup: {
+                                                from: 'profiles',
+                                                localField: '_id',
+                                                foreignField: 'user',
+                                                as: 'user_profile',
+                                                pipeline: [
+                                                    { $project: { gender: 1, image: 1 } },
+                                                ]
+                                            } 
+                                        },
+                                        { $project: { username: 1, user_profile: 1 } },
                                     ]
                                 }
                             },
@@ -300,7 +311,18 @@ const getChatContactList = asyncHandler(async (req, res)=> {
                                     foreignField: '_id',
                                     as: 'receiver_id',
                                     pipeline: [
-                                        { $project: { username: 1 } }
+                                        { 
+                                            $lookup: {
+                                                from: 'profiles',
+                                                localField: '_id',
+                                                foreignField: 'user',
+                                                as: 'user_profile',
+                                                pipeline: [
+                                                    { $project: { gender: 1, image: 1 } },
+                                                ]
+                                            } 
+                                        },
+                                        { $project: { username: 1, user_profile: 1 } },
                                     ]
                                 }
                             },
@@ -331,7 +353,19 @@ const getChatContactList = asyncHandler(async (req, res)=> {
                             },
                             {
                                 $unwind: {
+                                    path: '$sender_id.user_profile',
+                                    preserveNullAndEmptyArrays: false
+                                },
+                            },
+                            {
+                                $unwind: {
                                     path: '$receiver_id',
+                                    preserveNullAndEmptyArrays: false
+                                },
+                            },
+                            {
+                                $unwind: {
+                                    path: '$receiver_id.user_profile',
                                     preserveNullAndEmptyArrays: false
                                 },
                             },
