@@ -3,11 +3,14 @@ import axiosInstance from '../config'
 
 export const useChatStore = defineStore('chat', {
     state: ()=> ({
-        currentPage: 1,
         chat_list: [],
+        currentPage: 1,
         totalPage: 0,
         nextPage: null,
         chat_contact_list: [],
+        currentContactPage: 1,
+        totalContactPage: 0,
+        nextContactPage: null
     }),
     persist: {
         storage: sessionStorage,
@@ -47,7 +50,7 @@ export const useChatStore = defineStore('chat', {
         async getChatList(token){
             try {
                 
-                await axiosInstance.get('/contact/chat_list', { headers: { 'Authorization': `Bearer ${token}` } })
+                await axiosInstance.get(`/contact/chat_list`, { headers: { 'Authorization': `Bearer ${token}` } })
                 .then((response)=> {
                     this.chat_contact_list = response.data.data
                 })

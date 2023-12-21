@@ -13,7 +13,7 @@
                     <input type="text" :value="result.username" readonly>
                     <button>View Profile</button>
                     <button @click.prevent="sendRequest(result._id)">Send Request</button>
-                    <button @click.prevent="updateContactStatus(request._id, 1)">Accept</button>
+                    <!-- <button @click.prevent="updateContactStatus(request._id, 1)">Accept</button> -->
                 </li>
             </ul>
         </div>
@@ -37,12 +37,18 @@
                     <div v-if="current_user._id != contact.receiver_id._id">
                         <input type="text" :value="contact.receiver_id.username" readonly>
                         <button>View Profile</button>
+                        <button>
+                            <router-link :to="{ name: 'chat_content', params: { contact_id: contact._id } }">Chat</router-link>
+                        </button>
                         <button @click.prevent="updateContactStatus(contact._id, 2)">Unfriend</button>
                         <button @click.prevent="updateContactStatus(contact._id, 3)">Block</button>
                     </div>
                     <div v-if="current_user._id == contact.receiver_id._id">
                         <input type="text" :value="contact.sender_id.username" readonly>
                         <button>View Profile</button>
+                        <button>
+                            <router-link :to="{ name: 'chat_content', params: { contact_id: contact._id } }">Chat</router-link>
+                        </button>
                         <button @click.prevent="updateContactStatus(contact._id, 2)">Unfriend</button>
                         <button @click.prevent="updateContactStatus(contact._id, 3)">Block</button>
                     </div>

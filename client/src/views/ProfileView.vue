@@ -20,14 +20,25 @@
             <label for="email">Email</label>
             <input type="text" v-model="profile.email" readonly>
         </div>
+        <button @click.prevent="logout">Logout</button>
     </div>
 </template>
 
 <script setup>
     import { useAuthStore } from '../stores/auth'
+    import { useRouter } from 'vue-router'
 
     const authStore = useAuthStore()
     let profile = authStore.authUserInfo;
+    const router = useRouter();
+
+    const logout = () => {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+        authStore.token = null
+
+        router.push({ name: 'login' })
+    }
 
 </script>
 

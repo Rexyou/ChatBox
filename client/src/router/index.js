@@ -60,11 +60,10 @@ router.beforeEach(async (to, from) => {
     await contactStore.getContactList(storage_token)
   }
 
-  if (authRequired && (!authStore.token || authStore.token == null)) {
+  if (authRequired && (!authStore.token || authStore.token == null || storage_token == null)) {
     return { name: 'login' }
   }
   else if(authStore.token && publicPages.includes(to.name)){
-
     let path = { name: from.name };
     if(from.name == undefined){
       path = { name: 'chat_list' }
@@ -74,7 +73,6 @@ router.beforeEach(async (to, from) => {
 
   }
   else if(authStore.token && to.name == "chat_content"){
-
     const token = authStore.token
     const contact_id = to.params.contact_id
 

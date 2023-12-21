@@ -24,7 +24,8 @@
     const token = authStore.token
 
     const chatStore = useChatStore()
-    chatStore.getChatList(token);
+    const current_page_data = computed(()=> chatStore.currentContactPage)
+    chatStore.getChatList(token, current_page_data.value);
 
     const chatContactList = computed(()=> chatStore.chat_contact_list)
 

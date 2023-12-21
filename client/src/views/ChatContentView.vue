@@ -63,7 +63,7 @@
     }
 
     onMounted(async() => {
-        setTimeout(()=> { messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' }) }, 150)
+        setTimeout(()=> { messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' }) }, 200)
     })
 
     window.addEventListener('scroll', async ()=> {
