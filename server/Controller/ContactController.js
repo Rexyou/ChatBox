@@ -41,11 +41,9 @@ const sendRequest = asyncHandler(async (req, res)=> {
                                         }]
         
                                 })
-    if(connection_exists.length !== 0){
+    if(connection_exists != null){
 
         const current_status = connection_exists.connection_status
-
-        console.log(current_status)
 
         if(current_status == contactStatus.UNFRIEND){
             
@@ -217,7 +215,7 @@ const searchContact = asyncHandler(async (req, res)=> {
     const { target_value } = req.body
     const current_user = req.user
 
-    const contacts = await Contact.find({ $or: [ { sender_id: current_user.id }, { receiver_id: current_user.id } ], connect_status: { $ne: contactStatus.UNFRIEND } })
+    const contacts = await Contact.find({ $or: [ { sender_id: current_user.id }, { receiver_id: current_user.id } ], connection_status: { $ne: contactStatus.UNFRIEND } })
     const existUserId = contacts.map(contact => {
         return contact.sender_id == current_user.id ? contact.receiver_id : contact.sender_id;
     })
@@ -262,6 +260,16 @@ const getChatContactList = asyncHandler(async (req, res)=> {
 
     const current_user = req.user
     const current_user_id = new mongoose.Types.ObjectId(current_user.id)
+
+    let { page, limit } = req.params
+
+    if(!page){
+        page = 1
+    }
+
+    if(!limit){
+        limit = 15
+    }
 
     const contactList = await Contact.aggregate([
                             { 
@@ -331,13 +339,16 @@ const getChatContactList = asyncHandler(async (req, res)=> {
                                 $sort: { 'messages.createdAt': -1 }
                             }
                         ]);
+
+    // const options = {
+    //     page,
+    //     limit
+    // }
+
+    // const contactList = await Contact.aggregatePaginate(query, options)
     if(!contactList){
         contactList = {}
     }
-
-    // contactList.docs = contactList.docs.sort((a, b)=> {
-    //     return new Date(b.chat_record.createdAt) - new Date(a.chat_record.createdAt)
-    // })
 
     return res.send({ status: true, data: contactList, message: 'success', code: responseCode.SUCCESS })
 

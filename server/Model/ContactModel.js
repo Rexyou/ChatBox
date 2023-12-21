@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const { tableStatus, contactStatus } = require('../Config/setting')
 const mongoosePaginate = require('mongoose-paginate-v2')
+var aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 
 const ContactModel = mongoose.Schema({
 
@@ -39,5 +40,6 @@ ContactModel.virtual('chat_record', {
 });
 
 ContactModel.plugin(mongoosePaginate)
+ContactModel.plugin(aggregatePaginate);
 
 module.exports = mongoose.model('Contact', ContactModel)
