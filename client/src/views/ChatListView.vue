@@ -5,7 +5,7 @@
             <div v-for="(item, index) in chatContactList" :key="index" class="chat_contact">
                 <img v-if="item.sender_id._id != userInfo._id && item.sender_id.user_profile.image" :src="item.sender_id.user_profile.image" alt="sender_profile_image" class="user_profile_image">
                 <img v-if="item.receiver_id._id != userInfo._id && item.receiver_id.user_profile.image" :src="item.receiver_id.user_profile.image" alt="receiver_profile_image" class="user_profile_image">
-                <img v-if="!item.sender_id.user_profile.image || !item.receiver_id.user_profile.image" src="https://images.unsplash.com/photo-1603208228995-e1363f894188?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="default">
+                <img v-if="(!item.sender_id.user_profile.image && item.sender_id._id != userInfo._id) || (!item.receiver_id.user_profile.image && item.receiver_id._id != userInfo._id)" :src="defaultImage" alt="default">
                 <router-link :to="{ name: 'chat_content', params: { contact_id: item._id } }" target="_blank">
                     <h2 v-if="item.sender_id._id != userInfo._id">{{ item.sender_id.username }}</h2>
                     <h2 v-else>{{ item.receiver_id.username }}</h2>
@@ -43,6 +43,15 @@
     socket.on('disconnect', () => {
         console.log('byebye')
     })
+
+    const defaultImageList = [
+        'https://images.unsplash.com/photo-1603208228995-e1363f894188?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1628082878598-ed6b930efb74?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1526272023975-91c33ad49250?q=80&w=1854&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'https://images.unsplash.com/photo-1533231681263-76328007f383?q=80&w=1927&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    ];
+
+    const defaultImage = defaultImageList[Math.floor(Math.random()*defaultImageList.length)];
 </script>
 
 <style scoped>

@@ -53,7 +53,12 @@ export const useAuthStore = defineStore('auth', {
           this.authUserInfo = response.data.data
         })
         .catch((error)=>{
-          console.log(error)
+          if(error.response.status == 401){
+            this.token = null
+            this.authUserInfo = null
+            window.sessionStorage.clear()
+            window.localStorage.clear()
+          }
         })
 
       } catch (error) {

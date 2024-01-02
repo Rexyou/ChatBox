@@ -1,6 +1,9 @@
 <template>
     <div class="container">
         <h1 class="title">{{ receiver_name }}</h1>
+        <router-link :to="{ name: 'chat_list' }" class="back_button">
+            <span>Back to home</span>
+        </router-link>
         <div ref="messages" id="messages">
             <li v-for="(item, index) in chat_list" :key="index">
                 {{ `${item.message} by ${item.send_from_user.username} at ${ item.createdAt }` }}
@@ -134,7 +137,25 @@
     #input:focus { outline: none; }
     #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-    #messages { list-style-type: none; margin: 0; padding: 0; margin-bottom: 3rem; margin-top: 3rem; }
+    #messages { list-style-type: none; margin: 0; padding: 0; margin-bottom: 3rem; margin-top: 5rem; }
     #messages > li { padding: 0.5rem 1rem; }
     #messages > li:nth-child(odd) { background: #ffa743!important; }
+
+    .back_button {
+        position: fixed;
+        color: black;
+        height: 2rem;
+        width: 100%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 3rem;
+        text-decoration: none;
+    }
+
+    .back_button:hover {
+        color: white;
+        background: green;
+    }
 </style>
