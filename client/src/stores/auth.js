@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import axiosInstance from '../config/index'
 import { useContactStore } from './contact'
+import helper from '../helper/index'
 
 export const useAuthStore = defineStore('auth', {
   state: ()=> ({
@@ -32,7 +33,9 @@ export const useAuthStore = defineStore('auth', {
           await this.router.push({ name: 'profile' }); 
         })
         .catch((error)=> {
-          console.log(error)
+          if(error.response.status == 401){
+            helper.clearStorage()
+          }
         })
 
       } catch (error) {
@@ -54,10 +57,7 @@ export const useAuthStore = defineStore('auth', {
         })
         .catch((error)=>{
           if(error.response.status == 401){
-            this.token = null
-            this.authUserInfo = null
-            window.sessionStorage.clear()
-            window.localStorage.clear()
+            helper.clearStorage()
           }
         })
 

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axiosInstance from '../config'
+import helper from '../helper'
 
 export const useChatStore = defineStore('chat', {
     state: ()=> ({
@@ -39,7 +40,9 @@ export const useChatStore = defineStore('chat', {
                     this.nextPage = response.data.data.nextPage 
                 })
                 .catch((error)=> {
-                    console.log(error)
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
 
             } catch (error) {
@@ -55,7 +58,9 @@ export const useChatStore = defineStore('chat', {
                     this.chat_contact_list = response.data.data
                 })
                 .catch((error)=> {
-                    console.log(error)
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
 
             } catch (error) {

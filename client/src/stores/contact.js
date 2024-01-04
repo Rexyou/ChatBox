@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axiosInstance from '../config'
+import helper from '../helper'
 
 export const useContactStore = defineStore('contact', {
     state: ()=> ({
@@ -31,7 +32,9 @@ export const useContactStore = defineStore('contact', {
 
                 })
                 .catch((error)=>{
-                    console.log(error)
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
                 
             } catch (error) {
@@ -53,7 +56,9 @@ export const useContactStore = defineStore('contact', {
                     await this.getContactList(token, 0)
                 })
                 .catch((error)=> {
-                    console.log(error)
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
                 
             } catch (error) {
@@ -73,7 +78,9 @@ export const useContactStore = defineStore('contact', {
                     this.resultList = response.data.data
                 })
                 .catch(error=> {
-                    console.log(error)
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
 
             } catch (error) {
@@ -94,7 +101,9 @@ export const useContactStore = defineStore('contact', {
                     alert("Request send!")
                 })
                 .catch((error)=> {
-                    console.log(error)
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
                 
             } catch (error) {
@@ -118,6 +127,9 @@ export const useContactStore = defineStore('contact', {
                 .catch((error)=> {
                     console.log(error)
                     this.contact_room_verify = false
+                    if(error.response.status == 401){
+                        helper.clearStorage()
+                    }
                 })
 
             } catch (error) {

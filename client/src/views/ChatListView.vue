@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-    import { computed } from 'vue'
+    import { computed, onMounted } from 'vue'
     import { io } from 'socket.io-client'
     import { useAuthStore } from '../stores/auth';
     import { useChatStore } from '../stores/chat'
@@ -28,7 +28,10 @@
 
     const chatStore = useChatStore()
     const current_page_data = computed(()=> chatStore.currentContactPage)
-    chatStore.getChatList(token, current_page_data.value);
+
+    onMounted(async ()=> {
+        chatStore.getChatList(token, current_page_data.value);
+    })
 
     const chatContactList = computed(()=> chatStore.chat_contact_list)
 
@@ -36,7 +39,7 @@
 
     socket.on('connect', () => {
         socket.on('chat_notification', async function(data) {
-            chatStore.getChatList(token);
+            await chatStore.getChatList(token);
         });
     })
 
