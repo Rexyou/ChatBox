@@ -1,7 +1,10 @@
 <template>
     <div class="container">
-        <h1 class="title">{{ receiver_name }}<br />{{ contact_id  }}</h1>
-        <router-link :to="{ name: 'chat_list' }" class="back_button">
+        <div class="title">
+            <h1>{{ receiver_name }}</h1>
+            <h2>Room ID: {{ contact_id  }}</h2>
+        </div>
+        <router-link :to="{ name: 'chat_list' }" class="back_button" @click="disconnectedConnection">
             <span>Back to home</span>
         </router-link>
         <div ref="messages" id="messages">
@@ -17,7 +20,7 @@
 </template>
 
 <script setup>
-    import { computed, reactive, ref, nextTick, onMounted, watch } from 'vue'
+    import { computed, ref, nextTick, onMounted } from 'vue'
     import { io } from 'socket.io-client'
     import { useRoute, useRouter } from 'vue-router'
     import { useAuthStore } from '../stores/auth'
@@ -68,7 +71,7 @@
     const socket = io('http://localhost:3900')
 
     onMounted(async() => {
-        setTimeout(()=> { messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' }) }, 200);
+        setTimeout(()=> { messages.value.lastElementChild?.scrollIntoView({ behavior: 'smooth' }) }, 200);
 
         // Run recorder to know current live user
         socket.emit('recorder', { contact_id, userInfo });
@@ -111,6 +114,11 @@
         console.log('byebye')
     })
 
+    // Manual disconnect
+    const disconnectedConnection = () => {
+        socket.emit('disconnect_connection');
+    }
+
 </script>
 
 <style scoped>
@@ -126,8 +134,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 28px;
+        flex-direction: column;
         color: white;
+    }
+
+    .title h1 {
+        font-size: 30px;
+    }
+
+    .title h2 {
+        font-size: 22px;
     }
 
     #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 6vh; box-sizing: border-box; backdrop-filter: blur(10px); }

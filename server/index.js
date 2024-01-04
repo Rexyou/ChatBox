@@ -47,10 +47,30 @@ app.get("/", (req, res)=> {
 
 let connectedUsers = new Map();
 
-io.on('connection', (socket)=> {
-    console.log('a user connected')
-    console.log("socket connected id: ", socket.id)
+const disconnectedAction = (connectedUsers, socket) => {
+  for (const [key, value] of connectedUsers.entries()) { 
+    console.log("key : ", key)
+    console.log("value before : ", value)
+    
+    for (const key2 in value){
+      if(value[key2] === socket.id){
+        delete value[key2]
+      }
+    }
 
+    console.log("value after : ", value)
+    connectedUsers.set(key, value)
+
+    console.log(key)
+    console.log(Object.keys(value).length)
+
+    if(Object.keys(value).length == 0){
+      connectedUsers.delete(key)
+    }
+  } 
+}
+
+io.on('connection', (socket)=> {
     socket.on('recorder', async (userData) => {
       console.log('recording...')
       const { contact_id, userInfo } = userData
@@ -106,32 +126,12 @@ io.on('connection', (socket)=> {
 
     });
 
+    socket.on('disconnect_connection', async()=> {
+      disconnectedAction(connectedUsers, socket)
+    })
+
     socket.on('disconnect', ()=>{
-
-      for (const [key, value] of connectedUsers.entries()) { 
-        console.log("key : ", key)
-        console.log("value before : ", value)
-        
-        for (const key2 in value){
-          if(value[key2] === socket.id){
-            delete value[key2]
-          }
-        }
-
-        console.log("value after : ", value)
-        connectedUsers.set(key, value)
-
-        console.log(key)
-        console.log(Object.keys(value).length)
-
-        if(Object.keys(value).length == 0){
-          connectedUsers.delete(key)
-        }
-      } 
-
-      console.log("socket disconnect id: ", socket.id)
-      console.log("user disconnect")
-      console.log("current list : ", connectedUsers)
+      disconnectedAction(connectedUsers, socket)
     })
 })
 
