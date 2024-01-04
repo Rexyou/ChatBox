@@ -9,7 +9,6 @@ const clearStorage = () => {
     window.sessionStorage.clear()
     window.localStorage.clear()
 
-    return
 }
 
 export default {
