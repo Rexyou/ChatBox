@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1 class="title">{{ receiver_name }}</h1>
+        <h1 class="title">{{ receiver_name }}<br />{{ contact_id  }}</h1>
         <router-link :to="{ name: 'chat_list' }" class="back_button">
             <span>Back to home</span>
         </router-link>
@@ -65,8 +65,13 @@
         router.push({ name: "chat_list" })
     }
 
+    const socket = io('http://localhost:3900')
+
     onMounted(async() => {
-        setTimeout(()=> { messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' }) }, 200)
+        setTimeout(()=> { messages.value.lastElementChild.scrollIntoView({ behavior: 'smooth' }) }, 200);
+
+        // Run recorder to know current live user
+        socket.emit('recorder', { contact_id, userInfo });
     })
 
     window.addEventListener('scroll', async ()=> {
@@ -78,14 +83,7 @@
         }
     })
 
-    const state = reactive({
-        connected: false
-    })
-
-    const socket = io('http://localhost:3900')
-
     socket.on('connect', () => {
-        state.connected = true
 
         var form = document.getElementById('form');
         var input = document.getElementById('input');
@@ -121,7 +119,7 @@
     .title {
         position: fixed;
         width: 100%;
-        height: 3rem;
+        height: 6rem;
         top: 0;
         text-align: center;
         background: black;
@@ -137,7 +135,7 @@
     #input:focus { outline: none; }
     #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-    #messages { list-style-type: none; margin: 0; padding: 0; margin-bottom: 3rem; margin-top: 5rem; }
+    #messages { list-style-type: none; margin: 0; padding: 0; margin-bottom: 3rem; margin-top: 8rem; }
     #messages > li { padding: 0.5rem 1rem; }
     #messages > li:nth-child(odd) { background: #ffa743!important; }
 
@@ -150,7 +148,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        top: 3rem;
+        top: 6rem;
         text-decoration: none;
     }
 
