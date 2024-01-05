@@ -1,7 +1,10 @@
 <template>
     <div class="container">
         <div class="title">
-            <h1>{{ receiver_name }}</h1>
+            <div class="subtitle">
+                <h1>{{ receiver_name }}</h1>
+                <div class="status_bar" :class="[onlineStatus ? 'online_status' : 'offline_status']"></div>
+            </div>
             <h2>Room ID: {{ contact_id  }}</h2>
         </div>
         <router-link :to="{ name: 'chat_list' }" class="back_button" @click="disconnectedConnection">
@@ -37,6 +40,8 @@
     const contact = computed(()=> route.params.contact_id)
     const contact_id = contact.value
 
+    const onlineStatus = ref(false)
+
     // Initial step
     const chatStore = useChatStore()
     chatStore.getChatHistory(token, contact_id, 1);
@@ -56,12 +61,15 @@
     }
 
     let receiver_name = "Receiver";
+    let receiver_id = null;
     if(newList[0].sender_id._id != userInfo._id){
         receiver_name = newList[0].sender_id.username;
+        receiver_id = newList[0].sender_id._id
     }
 
     if(newList[0].receiver_id._id != userInfo._id){
         receiver_name = newList[0].receiver_id.username;
+        receiver_id = newList[0].receiver_id._id
     }
 
     if(newList[0].sender_id._id != userInfo._id && newList[0].receiver_id._id != userInfo._id){
@@ -108,6 +116,15 @@
             }
         });
 
+        socket.on(contact_id, async(data)=> {
+            if(data[receiver_id]){
+                onlineStatus.value = true
+            }
+            else {
+                onlineStatus.value = false
+            }
+        })
+
     })
 
     socket.on('disconnect', () => {
@@ -138,8 +155,28 @@
         color: white;
     }
 
-    .title h1 {
+    .subtitle {
+        display: flex;
+        align-items: center;
+    }
+
+    .subtitle h1 {
         font-size: 30px;
+    }
+
+    .subtitle .status_bar {
+        height: 12px;
+        width: 12px;
+        margin-left: 8px;
+        border-radius: 50%;
+    }
+
+    .subtitle .status_bar.offline_status {
+        background: red;
+    }
+
+    .subtitle .status_bar.online_status {
+        background: green;
     }
 
     .title h2 {

@@ -46,28 +46,28 @@ app.get("/", (req, res)=> {
 })
 
 let connectedUsers = new Map();
+let currentUsers = {};
 
-const disconnectedAction = (connectedUsers, socket) => {
-  for (const [key, value] of connectedUsers.entries()) { 
-    console.log("key : ", key)
-    console.log("value before : ", value)
-    
-    for (const key2 in value){
-      if(value[key2] === socket.id){
-        delete value[key2]
+const disconnectedAction = (currentUsers, socket) => {
+  for(const contact_id in currentUsers){
+    for(const user_id in currentUsers[contact_id]){
+      if(currentUsers[contact_id][user_id] === socket.id){
+        delete currentUsers[contact_id][user_id]
       }
     }
 
-    console.log("value after : ", value)
-    connectedUsers.set(key, value)
+    let final_list = currentUsers[contact_id]
 
-    console.log(key)
-    console.log(Object.keys(value).length)
-
-    if(Object.keys(value).length == 0){
-      connectedUsers.delete(key)
+    if(Object.keys(currentUsers[contact_id]).length == 0){
+      delete currentUsers[contact_id]
     }
-  } 
+
+    if(!currentUsers[contact_id]){
+      final_list = {}
+    }
+
+    io.emit(contact_id, final_list)
+  }
 }
 
 io.on('connection', (socket)=> {
@@ -75,35 +75,17 @@ io.on('connection', (socket)=> {
       console.log('recording...')
       const { contact_id, userInfo } = userData
 
-      if (!connectedUsers.has(contact_id)) {
-        connectedUsers.set(contact_id, []);
+      if(!currentUsers[contact_id]){
+        currentUsers[contact_id] = {}
       }
 
       if(userInfo?._id !== undefined){
-
-        const contact_detail = connectedUsers.get(contact_id)
         
         const user_id = userInfo._id
         const socket_id = socket.id
 
-        // const result = contact_detail.find((item)=> { 
-        //   if(item[user_id]){
-        //     item[user_id] = socket_id
-        //     return true
-        //   }
-
-        //   return false
-        // })
-
-        // console.log("result : ", result)
-
-        // if(!result || result === undefined){
-          // let final_input = {};
-          // final_input[user_id]=socket_id
-          // contact_detail.push(final_input)
-          contact_detail[user_id]=socket_id
-          // Object.assign(contact_detail, {user_id: socket_id})
-        // }
+        currentUsers[contact_id][user_id] = socket_id
+        io.emit(contact_id, currentUsers[contact_id])
         
       }
 
@@ -127,11 +109,11 @@ io.on('connection', (socket)=> {
     });
 
     socket.on('disconnect_connection', async()=> {
-      disconnectedAction(connectedUsers, socket)
+      disconnectedAction(currentUsers, socket)
     })
 
     socket.on('disconnect', ()=>{
-      disconnectedAction(connectedUsers, socket)
+      disconnectedAction(currentUsers, socket)
     })
 })
 
