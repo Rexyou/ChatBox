@@ -128,7 +128,7 @@
     })
 
     socket.on('disconnect', () => {
-        console.log('byebye')
+        router.push({ name: "chat_list" })
     })
 
     // Manual disconnect

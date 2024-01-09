@@ -21,7 +21,7 @@ connectDB()
 
 // Cors Unblocking
 const cors = require('cors');
-const { sendMessage } = require('./Controller/ChatController');
+const { sendMessage, updateContact } = require('./Controller/ChatController');
 const { constrainedMemory } = require('process');
 
 const allowedOrigins = [
@@ -45,7 +45,6 @@ app.get("/", (req, res)=> {
     return res.sendFile(__dirname+'/index.html')
 })
 
-let connectedUsers = new Map();
 let currentUsers = {};
 
 const disconnectedAction = (currentUsers, socket) => {
@@ -72,7 +71,6 @@ const disconnectedAction = (currentUsers, socket) => {
 
 io.on('connection', (socket)=> {
     socket.on('recorder', async (userData) => {
-      console.log('recording...')
       const { contact_id, userInfo } = userData
 
       if(!currentUsers[contact_id]){
@@ -85,20 +83,18 @@ io.on('connection', (socket)=> {
         const socket_id = socket.id
 
         currentUsers[contact_id][user_id] = socket_id
+        await updateContact({ contact_id, user_id, list: currentUsers[contact_id] });
         io.emit(contact_id, currentUsers[contact_id])
+        io.emit('chat_notification', {})
         
       }
-
-      console.log(connectedUsers)
     });
 
     socket.on('chat message', async (data) => {
 
-      console.log("chat message : ", connectedUsers)
-
       const { msg, userInfo, contact_id } = data
 
-      const insertion = await sendMessage({ message: msg, message_type: 'string', contact_id, current_id: userInfo._id });
+      const insertion = await sendMessage({ message: msg, message_type: 'string', contact_id, current_id: userInfo._id, list: currentUsers[contact_id] });
 
       let new_message = insertion.data
 

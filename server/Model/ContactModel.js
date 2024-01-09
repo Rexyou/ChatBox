@@ -15,6 +15,21 @@ const ContactModel = mongoose.Schema({
         ref: "User"
     },
 
+    sender_notification: {
+        type: Number,
+        default: 0
+    },
+
+    receiver_notification: {
+        type: Number,
+        default: 0
+    },
+
+    total_connection: {
+        type: Number,
+        default: 0
+    },
+
     connection_status: {
         type: Number,
         default: contactStatus.INITIAL

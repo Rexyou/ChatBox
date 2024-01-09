@@ -11,6 +11,11 @@
                     <h2 v-else>{{ item.receiver_id.username }}</h2>
                     <p>{{ item.messages.message }} at {{ item.messages.createdAt }}</p>
                 </router-link>
+                <div class="notification" v-if="(item.sender_id._id == userInfo._id && item.sender_notification !== undefined && item.sender_notification !== 0) || 
+                                                (item.receiver_id._id == userInfo._id && item.receiver_notification !== undefined && item.receiver_notification !== 0 )">
+                    <span v-if="item.sender_id._id == userInfo._id">{{ item.sender_notification }}</span>
+                    <span v-if="item.receiver_id._id == userInfo._id">{{ item.receiver_notification }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -34,6 +39,7 @@
     })
 
     const chatContactList = computed(()=> chatStore.chat_contact_list)
+    console.log(chatContactList.value)
 
     const socket = io('http://localhost:3900')
 
@@ -71,6 +77,7 @@
         padding: 5px 10px;
         display: flex;
         align-items: center;
+        position: relative;
     }
 
     .chat_contact img {
@@ -95,5 +102,23 @@
 
     .chat_contact p {
         margin-top: 5px;
+    }
+
+    .chat_contact .notification {
+        background: red;
+        position: absolute;
+        right: 25px;
+        bottom: 20px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chat_contact .notification {
+        color: white;
+        font-size: 18px;
     }
 </style>

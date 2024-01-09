@@ -180,7 +180,7 @@ const updateContactStatus = asyncHandler(async (req, res)=> {
         }
     }
 
-    const updateStatus = await connection_exists.updateOne({ connection_status: status });
+    const updateStatus = await connection_exists.updateOne({ connection_status: status, total_connection: 2 });
     if(!updateStatus){
         res.status(responseCode.SERVER_ERROR)
         throw new Error("contact_status_update_failure")
